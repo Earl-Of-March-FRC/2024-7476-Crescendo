@@ -7,10 +7,16 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.TankDriveCmd;
+import frc.robot.commands.test;
+import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -22,12 +28,15 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
+  private final DrivetrainSubsystem drive = new DrivetrainSubsystem();
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final XboxController dController = new XboxController(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY(), () -> -dController.getRightY()));
     // Configure the trigger bindings
     configureBindings();
   }
@@ -48,7 +57,14 @@ public class RobotContainer {
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    // dController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+    new JoystickButton(dController, 5).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    new JoystickButton(dController, 6).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    new JoystickButton(dController, 4).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    new JoystickButton(dController, 3).onTrue(new test(drive));
   }
 
   /**
