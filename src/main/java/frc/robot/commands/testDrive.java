@@ -17,17 +17,19 @@ public class testDrive extends PIDCommand {
   public testDrive(DrivetrainSubsystem drive) {
     super(
         // The controller that the command will use
-        new PIDController(DrivetrainConstants.P, 0, 0),
+        new PIDController(DrivetrainConstants.P, 0.1, 0.15),
         // This should return the measurement
         () -> drive.getLeftDistance(),
         // This should return the setpoint (can also be a constant)
-        () -> 2,
+        () -> 3,
         // This uses the output
         output -> {
           drive.tankDrive(() -> output, () -> output);
         });
 
         addRequirements(drive);
+
+        getController().setTolerance(0.1);
     // Use addRequirements() here to declare subsystem dependencies.
     // Configure additional PID options by calling `getController` here.
   }

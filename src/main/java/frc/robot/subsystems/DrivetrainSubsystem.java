@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -37,6 +38,7 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -138,6 +140,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     rightFront.setPosition(0);
 
     gyro.reset();
+    gyro.setAngleAdjustment(1.8);
+    // gyro.zeroYaw();
 
     // visionPose = new Pose3d(poseArray[0], poseArray[1], poseArray[2], new Rotation3d(poseArray[3], poseArray[4], poseArray[5]));
 
@@ -192,8 +196,20 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
 
+  public Pose2d getPose(){
+    poseEstimator.update(gyro.getRotation2d(), getLeftDistance(), getRightDistance());
+    return poseEstimator.getEstimatedPosition();
+  }
 
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightDistance());
+  }
 
+  public void tankDriveVolts(double leftVolts, double rightVolts) {
+    leftFront.setVoltage(leftVolts);
+    rightFront.setVoltage(rightVolts);
+    drive.feed();
+  }
 
   @Override
   public void periodic() {
@@ -217,6 +233,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Bot X", poseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("Bot Y", poseEstimator.getEstimatedPosition().getY());
     SmartDashboard.putNumber("Bot Rotation", poseEstimator.getEstimatedPosition().getRotation().getDegrees());
+    SmartDashboard.putNumber("Rotation", gyro.getRotation2d().getDegrees());
+
 
 
     SmartDashboard.putNumber("Left Distance", getLeftDistance());
