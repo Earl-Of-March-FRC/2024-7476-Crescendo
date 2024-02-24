@@ -15,6 +15,9 @@ import frc.robot.subsystems.ExampleSubsystem;
 
 import java.util.List;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -26,6 +29,8 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
@@ -48,6 +53,8 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController dController = new XboxController(0);
+  private final SendableChooser<Command> autoChooser;
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -55,6 +62,10 @@ public class RobotContainer {
     drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY() *0.5, () -> -dController.getRightY()*0.5));
     // Configure the trigger bindings
     configureBindings();
+
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+
   }
 
   /**
@@ -75,12 +86,12 @@ public class RobotContainer {
     // cancelling on release.
     // dController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-    new JoystickButton(dController, 5).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    new JoystickButton(dController, 6).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    new JoystickButton(dController, 4).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // new JoystickButton(dController, 5).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // new JoystickButton(dController, 6).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // new JoystickButton(dController, 4).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    new JoystickButton(dController, 3).onTrue(new test(drive));
+    // new JoystickButton(dController, 3).onTrue(new test(drive));
   }
 
   /**
@@ -91,55 +102,57 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
 
-    var autoVoltageConstraint =
-            new DifferentialDriveVoltageConstraint(
-                new SimpleMotorFeedforward(
-                    DrivetrainConstants.ks,
-                    DrivetrainConstants.kv,
-                    DrivetrainConstants.ka),
-                DrivetrainConstants.Dkinematics,
-                7);
+    return autoChooser.getSelected();
 
-        // Create config for trajectory
-        TrajectoryConfig config =
-            new TrajectoryConfig(
-                    DrivetrainConstants.kMaxSpeedMetersPerSecond,
-                    DrivetrainConstants.kMaxAccelerationMetersPerSecondSquared)
-                // Add kinematics to ensure max speed is actually obeyed
-                .setKinematics(DrivetrainConstants.Dkinematics)
-                // Apply the voltage constraint
-                .addConstraint(autoVoltageConstraint);
+    // var autoVoltageConstraint =
+    //         new DifferentialDriveVoltageConstraint(
+    //             new SimpleMotorFeedforward(
+    //                 DrivetrainConstants.ks,
+    //                 DrivetrainConstants.kv,
+    //                 DrivetrainConstants.ka),
+    //             DrivetrainConstants.Dkinematics,
+    //             7);
 
-        // An example trajectory to follow. All units in meters.
-        Trajectory exampleTrajectory =
-            TrajectoryGenerator.generateTrajectory(
-                // Start at the origin facing the +X direction
-                new Pose2d(0, 0, new Rotation2d(0)),
-                // Pass through these two interior waypoints, making an 's' curve path
-                List.of(new Translation2d(2, 0.5), new Translation2d(2, -0.5), new Translation2d(0, 0)),
-                // End 3 meters straight ahead of where we started, facing forward
-                new Pose2d(4, 0, new Rotation2d(0)),
-                // Pass config
-                config);
+    //     // Create config for trajectory
+    //     TrajectoryConfig config =
+    //         new TrajectoryConfig(
+    //                 DrivetrainConstants.kMaxSpeedMetersPerSecond,
+    //                 DrivetrainConstants.kMaxAccelerationMetersPerSecondSquared)
+    //             // Add kinematics to ensure max speed is actually obeyed
+    //             .setKinematics(DrivetrainConstants.Dkinematics)
+    //             // Apply the voltage constraint
+    //             .addConstraint(autoVoltageConstraint);
 
-        RamseteCommand ramseteCommand =
-            new RamseteCommand(
-                exampleTrajectory,
-                drive::getPose,
-                new RamseteController(DrivetrainConstants.kRamseteB, DrivetrainConstants.kRamseteZeta),
-                new SimpleMotorFeedforward(
-                    DrivetrainConstants.ks,
-                    DrivetrainConstants.kv,
-                    DrivetrainConstants.ka),
-                DrivetrainConstants.Dkinematics,
-                drive::getWheelSpeeds,
-                new PIDController(DrivetrainConstants.P, 0.0, 0.0),
-                new PIDController(DrivetrainConstants.P, 0.0, 0.0),
-                // RamseteCommand passes volts to the callback
-                drive::tankDriveVolts,
-                drive);
+    //     // An example trajectory to follow. All units in meters.
+    //     Trajectory exampleTrajectory =
+    //         TrajectoryGenerator.generateTrajectory(
+    //             // Start at the origin facing the +X direction
+    //             new Pose2d(0, 0, new Rotation2d(0)),
+    //             // Pass through these two interior waypoints, making an 's' curve path
+    //             List.of(new Translation2d(2, 0.5), new Translation2d(2, -0.5), new Translation2d(0, 0)),
+    //             // End 3 meters straight ahead of where we started, facing forward
+    //             new Pose2d(4, 0, new Rotation2d(0)),
+    //             // Pass config
+    //             config);
+
+    //     RamseteCommand ramseteCommand =
+    //         new RamseteCommand(
+    //             exampleTrajectory,
+    //             drive::getPose,
+    //             new RamseteController(DrivetrainConstants.kRamseteB, DrivetrainConstants.kRamseteZeta),
+    //             new SimpleMotorFeedforward(
+    //                 DrivetrainConstants.ks,
+    //                 DrivetrainConstants.kv,
+    //                 DrivetrainConstants.ka),
+    //             DrivetrainConstants.Dkinematics,
+    //             drive::getWheelSpeeds,
+    //             new PIDController(DrivetrainConstants.P, 0.0, 0.0),
+    //             new PIDController(DrivetrainConstants.P, 0.0, 0.0),
+    //             // RamseteCommand passes volts to the callback
+    //             drive::tankDriveVolts,
+    //             drive);
 
 
-    return ramseteCommand.andThen(Commands.runOnce(() -> drive.tankDriveVolts(0, 0)));
+    // return ramseteCommand.andThen(Commands.runOnce(() -> drive.tankDriveVolts(0, 0)));
   }
 }
