@@ -17,14 +17,20 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 // import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -35,6 +41,7 @@ import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -44,7 +51,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.Constants.DrivetrainConstants;
 import edu.wpi.first.wpilibj.I2C.Port;
 
 
@@ -63,66 +70,23 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final TalonFX rightBack = new TalonFX(2);
 
   private DifferentialDrive drive = new DifferentialDrive(leftFront, rightFront);
-
-
-
-  private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
-  // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
-  private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
-  // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
-  private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
-
-  // Create a new SysId routine for characterizing the drive.
-  private final SysIdRoutine m_sysIdRoutine =
-      new SysIdRoutine(
-          // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-          new SysIdRoutine.Config(),
-          new SysIdRoutine.Mechanism(
-              // Tell SysId how to plumb the driving voltage to the motors.
-              (Measure<Voltage> volts) -> {
-                leftFront.setVoltage(volts.in(Volts));
-                rightFront.setVoltage(volts.in(Volts));
-              },
-              // Tell SysId how to record a frame of data for each motor on the mechanism being
-              // characterized.
-              log -> {
-                // Record a frame for the left motors.  Since these share an encoder, we consider
-                // the entire group to be one motor.
-                log.motor("drive-left")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            leftFront.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(getLeftDistance(), Meters))
-                    .linearVelocity(
-                        m_velocity.mut_replace(getLeftVelocity(), MetersPerSecond));
-                // Record a frame for the right motors.  Since these share an encoder, we consider
-                // the entire group to be one motor.
-                log.motor("drive-right")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            rightFront.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(getRightDistance(), Meters))
-                    .linearVelocity(
-                        m_velocity.mut_replace(getRightVelocity(), MetersPerSecond));
-              },
-              // Tell SysId to make generated commands require this subsystem, suffix test state in
-              // WPILog with this subsystem's name ("drive")
-              this));
-
-
   private final AHRS gyro = new AHRS(Port.kOnboard);
 
 
   public Pose3d visionPose;
   private double[] poseArray = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(new double[6]);
 
+
   private DifferentialDrivePoseEstimator poseEstimator;
   private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(24.8)); // distance between left and right wheels in metres
 
+  private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(DrivetrainConstants.ks, DrivetrainConstants.kv);
+  private PIDController leftPIPidController = new PIDController(DrivetrainConstants.P, 0, 0);
+  private PIDController rightPIPidController = new PIDController(DrivetrainConstants.P, 0, 0);
+
+
 
   public DrivetrainSubsystem() {    
-    // leftFront.setInverted(tru e);
-    // leftBack.setInverted(true);
 
     leftBack.setControl(new Follower(leftFront.getDeviceID(), false));
     rightBack.setControl(new Follower(rightFront.getDeviceID(), false));
@@ -147,10 +111,58 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     Pose2d reset = new Pose2d(0, 0, new Rotation2d(0));
     poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), getLeftDistance(), getRightDistance(), reset);
+
+
+    AutoBuilder.configureRamsete(
+            this::getPose, // Robot pose supplier
+            this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getChassisSpeeds, // Current ChassisSpeeds supplier
+            this::chassisSpeedsDrive, // Method that will drive the robot given ChassisSpeeds
+            new ReplanningConfig(), // Default path replanning config. See the API for the options here
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
   }
 
   public void tankDrive(DoubleSupplier left, DoubleSupplier right){
     drive.tankDrive(left.getAsDouble(), right.getAsDouble());
+  }
+
+  public void chassisSpeedsDrive(ChassisSpeeds chassis){
+
+    DifferentialDriveWheelSpeeds speeds = kinematics.toWheelSpeeds(chassis);
+
+    final double leftFeedforward = feedforward.calculate(speeds.leftMetersPerSecond);
+    final double rightFeedforward = feedforward.calculate(speeds.rightMetersPerSecond);
+
+    final double leftOutput =
+        leftPIPidController.calculate(getLeftVelocity(), speeds.leftMetersPerSecond);
+    final double rightOutput =
+        rightPIPidController.calculate(getRightVelocity(), speeds.rightMetersPerSecond);
+
+    leftFront.setVoltage(leftOutput + leftFeedforward);
+    rightFront.setVoltage(rightOutput + rightFeedforward);
+
+    drive.tankDrive(speeds.leftMetersPerSecond, speeds.rightMetersPerSecond);
+  }
+
+
+  public void resetPose(Pose2d pose){
+    poseEstimator.resetPosition(gyro.getRotation2d(), new DifferentialDriveWheelPositions(getLeftDistance(), getRightDistance()), pose);
+  }
+
+  public ChassisSpeeds getChassisSpeeds(){
+    return kinematics.toChassisSpeeds(getWheelSpeeds());
   }
 
   public double getLeftDistance(){
@@ -175,24 +187,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public Pose2d getBotPose(){
     return poseEstimator.getEstimatedPosition();
-  }
-
-  /**
-   * Returns a command that will execute a quasistatic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.quasistatic(direction);
-  }
-
-  /**
-   * Returns a command that will execute a dynamic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.dynamic(direction);
   }
 
 
@@ -242,3 +236,68 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   }
 }
+
+
+
+// System Identification Tests
+
+  // private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+  // // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+  // private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
+  // // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+  // private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+
+  // // Create a new SysId routine for characterizing the drive.
+  // private final SysIdRoutine m_sysIdRoutine =
+  //     new SysIdRoutine(
+  //         // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+  //         new SysIdRoutine.Config(),
+  //         new SysIdRoutine.Mechanism(
+  //             // Tell SysId how to plumb the driving voltage to the motors.
+  //             (Measure<Voltage> volts) -> {
+  //               leftFront.setVoltage(volts.in(Volts));
+  //               rightFront.setVoltage(volts.in(Volts));
+  //             },
+  //             // Tell SysId how to record a frame of data for each motor on the mechanism being
+  //             // characterized.
+  //             log -> {
+  //               // Record a frame for the left motors.  Since these share an encoder, we consider
+  //               // the entire group to be one motor.
+  //               log.motor("drive-left")
+  //                   .voltage(
+  //                       m_appliedVoltage.mut_replace(
+  //                           leftFront.get() * RobotController.getBatteryVoltage(), Volts))
+  //                   .linearPosition(m_distance.mut_replace(getLeftDistance(), Meters))
+  //                   .linearVelocity(
+  //                       m_velocity.mut_replace(getLeftVelocity(), MetersPerSecond));
+  //               // Record a frame for the right motors.  Since these share an encoder, we consider
+  //               // the entire group to be one motor.
+  //               log.motor("drive-right")
+  //                   .voltage(
+  //                       m_appliedVoltage.mut_replace(
+  //                           rightFront.get() * RobotController.getBatteryVoltage(), Volts))
+  //                   .linearPosition(m_distance.mut_replace(getRightDistance(), Meters))
+  //                   .linearVelocity(
+  //                       m_velocity.mut_replace(getRightVelocity(), MetersPerSecond));
+  //             },
+  //             // Tell SysId to make generated commands require this subsystem, suffix test state in
+  //             // WPILog with this subsystem's name ("drive")
+  //             this));
+
+  //   /**
+  //  * Returns a command that will execute a quasistatic test in the given direction.
+  //  *
+  //  * @param direction The direction (forward or reverse) to run the test in
+  //  */
+  // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+  //   return m_sysIdRoutine.quasistatic(direction);
+  // }
+
+  // /**
+  //  * Returns a command that will execute a dynamic test in the given direction.
+  //  *
+  //  * @param direction The direction (forward or reverse) to run the test in
+  //  */
+  // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+  //   return m_sysIdRoutine.dynamic(direction);
+  // }
