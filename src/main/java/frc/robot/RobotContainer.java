@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.CancelDriveAutos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.TankDriveCmd;
 import frc.robot.commands.test;
@@ -28,7 +29,9 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -55,15 +58,20 @@ public class RobotContainer {
   private final XboxController dController = new XboxController(0);
   private final SendableChooser<Command> autoChooser;
 
+  private Command toSource = drive.toSource();
+  private Command toAmp = drive.toAmp();
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY() *0.5, () -> -dController.getRightY()*0.5));
+    drive.resetGyro();
+
+    drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY(), () -> -dController.getRightY()));
     // Configure the trigger bindings
     configureBindings();
 
-    autoChooser = AutoBuilder.buildAutoChooser();
+    autoChooser = AutoBuilder.buildAutoChooser( );
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
   }
@@ -82,13 +90,9 @@ public class RobotContainer {
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    // dController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-
-    // new JoystickButton(dController, 5).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // new JoystickButton(dController, 6).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // new JoystickButton(dController, 4).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    new JoystickButton(dController, 5).whileTrue(toSource);
+    new JoystickButton(dController,6).whileTrue(toAmp);
+    new JoystickButton(dController, 3).onTrue(new CancelDriveAutos(toSource, toAmp));
     // new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // new JoystickButton(dController, 3).onTrue(new test(drive));

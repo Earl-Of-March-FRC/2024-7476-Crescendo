@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -18,20 +19,28 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 // import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathRamsete;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -44,6 +53,7 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -84,6 +94,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private PIDController leftPIPidController = new PIDController(DrivetrainConstants.P, 0, 0);
   private PIDController rightPIPidController = new PIDController(DrivetrainConstants.P, 0, 0);
 
+  private ProfiledPIDController proPidLeft = new ProfiledPIDController(DrivetrainConstants.P, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
+  private ProfiledPIDController proPidRight = new ProfiledPIDController(DrivetrainConstants.P, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
+
 
 
   public DrivetrainSubsystem() {    
@@ -103,13 +116,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
     leftFront.setPosition(0);
     rightFront.setPosition(0);
 
+    gyro.zeroYaw();
     gyro.reset();
-    gyro.setAngleAdjustment(1.8);
     // gyro.zeroYaw();
 
     // visionPose = new Pose3d(poseArray[0], poseArray[1], poseArray[2], new Rotation3d(poseArray[3], poseArray[4], poseArray[5]));
 
-    Pose2d reset = new Pose2d(0, 0, new Rotation2d(0));
+    Pose2d reset = new Pose2d(0.4, 7.4, new Rotation2d().fromDegrees(0));
     poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), getLeftDistance(), getRightDistance(), reset);
 
 
@@ -145,6 +158,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     final double leftFeedforward = feedforward.calculate(speeds.leftMetersPerSecond);
     final double rightFeedforward = feedforward.calculate(speeds.rightMetersPerSecond);
 
+    // use PID, Testing with Profiled PID
     final double leftOutput =
         leftPIPidController.calculate(getLeftVelocity(), speeds.leftMetersPerSecond);
     final double rightOutput =
@@ -152,10 +166,30 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     leftFront.setVoltage(leftOutput + leftFeedforward);
     rightFront.setVoltage(rightOutput + rightFeedforward);
-
-    drive.tankDrive(speeds.leftMetersPerSecond, speeds.rightMetersPerSecond);
+    drive.feed();
   }
 
+    // Assuming this is a method in your drive subsystem
+  public Command toSource() {
+      PathPlannerPath path = PathPlannerPath.fromPathFile("ToSource");
+
+      PathConstraints constraints = new PathConstraints(
+        3.0, 2.0,
+        Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+      return AutoBuilder.pathfindThenFollowPath(path, constraints);
+  }
+
+  public Command toAmp() {
+      PathPlannerPath path = PathPlannerPath.fromPathFile("ToAmp");
+
+
+      PathConstraints constraints = new PathConstraints(
+        3.0, 2.0,
+        Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+      return AutoBuilder.pathfindThenFollowPath(path, constraints);
+  }
 
   public void resetPose(Pose2d pose){
     poseEstimator.resetPosition(gyro.getRotation2d(), new DifferentialDriveWheelPositions(getLeftDistance(), getRightDistance()), pose);
@@ -203,6 +237,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     leftFront.setVoltage(leftVolts);
     rightFront.setVoltage(rightVolts);
     drive.feed();
+  }
+
+  public void resetGyro(){
+    gyro.reset();
   }
 
   @Override
