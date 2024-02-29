@@ -4,28 +4,29 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.ArmSubsystem;
 
-/** An example command that uses an example subsystem. */
-public class ExampleCommand extends Command {
-  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ExampleSubsystem m_subsystem;
+public class ArmCommand extends Command {
+  private ArmSubsystem armSub;
+  private double speed;
 
-  /**
-   * Creates a new ExampleCommand.
-   *
-   * @param subsystem The subsystem used by this command.
-   */
-  public ExampleCommand(ExampleSubsystem subsystem) {
-    m_subsystem = subsystem;
+  /** Creates a new ArmCommand. */
+  public ArmCommand(ArmSubsystem armSub, double speed) {
+    this.armSub = armSub;
+    this.speed = speed;
+
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(subsystem);
+    addRequirements(armSub);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    armSub.setArm(speed);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -33,7 +34,9 @@ public class ExampleCommand extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    armSub.setArm(0);
+  }
 
   // Returns true when the command should end.
   @Override
