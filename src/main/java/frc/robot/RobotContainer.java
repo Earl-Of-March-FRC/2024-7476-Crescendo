@@ -7,13 +7,15 @@ package frc.robot;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ArmCommand;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.TankDriveCmd;
 import frc.robot.commands.test;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 import java.util.List;
 
@@ -53,6 +55,8 @@ public class RobotContainer {
 
   private final DrivetrainSubsystem drive = new DrivetrainSubsystem();
   private final ArmSubsystem armSub = new ArmSubsystem();
+  private final ShooterSubsystem shooterSub = new ShooterSubsystem();
+  private final IntakeSubsystem intakeSub = new IntakeSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController dController = new XboxController(0);
@@ -82,22 +86,20 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+ 
 
-    // dController.a().whileTrue(new ArmCommand(armSub, 0.2));
-    new JoystickButton(dController, 2).whileTrue(new ArmCommand(armSub, 0.5));
-    new JoystickButton(dController, 3).whileTrue(new ArmCommand(armSub, -0.5));
+    // new JoystickButton(dController, 2).whileTrue(new ArmCommand(armSub, 0.3));
+    // new JoystickButton(dController, 3).whileTrue(new ArmCommand(armSub, -0.3));
+    // new JoystickButton(dController, 4).whileTrue(new ShooterCommand(shooterSub, -0.3));
+    // new JoystickButton(dController, 1).whileTrue(new IntakeCommand(intakeSub, 0.3));
+    
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    // dController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-    // new JoystickButton(dController, 5).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // new JoystickButton(dController, 6).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // new JoystickButton(dController, 4).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    new JoystickButton(dController, 5).whileTrue(armSub.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    new JoystickButton(dController, 6).whileTrue(armSub.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    new JoystickButton(dController, 4).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    new JoystickButton(dController, 2).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // new JoystickButton(dController, 3).onTrue(new test(drive));
   }

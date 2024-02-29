@@ -41,4 +41,13 @@ public final class Constants {
 
     
   }
+
+  public class ArmConstants{
+    public final static double P = 0.03;
+    public final static double I = 0;
+    public final static double D = 0;
+
+    }
+
+  
 }
