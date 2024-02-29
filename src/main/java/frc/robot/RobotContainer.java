@@ -9,6 +9,9 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShooterCommand;
+import frc.robot.commands.Autos;
+import frc.robot.commands.CancelDriveAutos;
+import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.TankDriveCmd;
 import frc.robot.commands.test;
 import frc.robot.subsystems.ArmSubsystem;
@@ -32,7 +35,9 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -62,14 +67,18 @@ public class RobotContainer {
   private final XboxController dController = new XboxController(0);
   private final SendableChooser<Command> autoChooser;
 
+  private Command toSource = drive.toSource();
+  private Command toAmp = drive.toAmp();
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY() *0.5, () -> -dController.getRightY()*0.5));
+    drive.resetGyro();
+
+    drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY(), () -> -dController.getRightY()));
     // Configure the trigger bindings
     configureBindings();
-
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -86,7 +95,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
- 
 
     // new JoystickButton(dController, 2).whileTrue(new ArmCommand(armSub, 0.3));
     // new JoystickButton(dController, 3).whileTrue(new ArmCommand(armSub, -0.3));
@@ -100,6 +108,17 @@ public class RobotContainer {
     new JoystickButton(dController, 6).whileTrue(armSub.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     new JoystickButton(dController, 4).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kForward));
     new JoystickButton(dController, 2).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+  
+    // begin path-planning branch contents
+    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+    // new Trigger(m_exampleSubsystem::exampleCondition)
+    //    .onTrue(new ExampleCommand(m_exampleSubsystem));
+
+    // new JoystickButton(dController, 5).whileTrue(toSource);
+    // new JoystickButton(dController,6).whileTrue(toAmp);
+    // new JoystickButton(dController, 3).onTrue(new CancelDriveAutos(toSource, toAmp));
+    // new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // end path-planning branch
 
     // new JoystickButton(dController, 3).onTrue(new test(drive));
   }
