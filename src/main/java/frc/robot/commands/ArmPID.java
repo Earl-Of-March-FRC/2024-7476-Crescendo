@@ -24,7 +24,7 @@ public class ArmPID extends PIDCommand {
         // This uses the output
         output -> {
           // Use the output here
-          armSub.setArm(output);
+          armSub.setArmSpeed(output);
         });
 
 

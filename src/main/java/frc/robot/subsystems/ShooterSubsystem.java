@@ -4,11 +4,8 @@
 
 package frc.robot.subsystems;
 
-import java.beans.Encoder;
-
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
-import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -16,8 +13,12 @@ public class ShooterSubsystem extends SubsystemBase {
   private final WPI_TalonSRX blueShooter = new WPI_TalonSRX(7);
   private final WPI_TalonSRX orangeShooter = new WPI_TalonSRX(8);
 
-  public ShooterSubsystem(){
+  public ShooterSubsystem() {
+    blueShooter.setNeutralMode(NeutralMode.Coast);
+    orangeShooter.setNeutralMode(NeutralMode.Coast);
 
+    blueShooter.setInverted(true);
+    orangeShooter.setInverted(true);
   }
 
   @Override

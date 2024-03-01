@@ -8,14 +8,18 @@ import java.beans.Encoder;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new ArmSubsystem. */
   private final WPI_TalonSRX intakeMotor = new WPI_TalonSRX(9);
-  private final Ultrasonic ultrasonic = new Ultrasonic(1, 2);
+  //private final Ultrasonic ultrasonic = new Ultrasonic()
+  private final AnalogPotentiometer ultrasonic = new AnalogPotentiometer(new AnalogInput(0), 15);
 
   public IntakeSubsystem() {
     intakeMotor.setInverted(false);
@@ -24,12 +28,14 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(ultrasonic.getRangeInches() < 15){
-      intake(0);
-    }
+    // if(ultrasonic.getRangeInches() < 15){
+    //   setIntakeSpeed(0);
+    // }
+
+    SmartDashboard.putNumber("ultrasonic Distance", ultrasonic.get());
   }
 
-  public void intake(double speed) {
+  public void setIntakeSpeed(double speed) {
     intakeMotor.set(speed);
   }
 

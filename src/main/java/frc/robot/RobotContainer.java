@@ -6,7 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.ArmCommand;
+import frc.robot.commands.ArmSetVoltage;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.CancelDriveAutos;
@@ -63,6 +63,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController dController = new XboxController(0);
+  private final XboxController oController = new XboxController(1);
   private final SendableChooser<Command> autoChooser;
 
   private Command toSource = drive.toSource();
@@ -94,18 +95,20 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    // new JoystickButton(dController, 2).whileTrue(new ArmCommand(armSub, 0.3));
-    // new JoystickButton(dController, 3).whileTrue(new ArmCommand(armSub, -0.3));
-    // new JoystickButton(dController, 4).whileTrue(new ShooterCommand(shooterSub, -0.3));
-    // new JoystickButton(dController, 1).whileTrue(new IntakeCommand(intakeSub, 0.3));
+    new JoystickButton(oController, 2).whileTrue(new ArmSetVoltage(armSub, 0.3));
+    new JoystickButton(oController, 3).whileTrue(new ArmSetVoltage(armSub, -0.3));
+    new JoystickButton(oController, 4).whileTrue(new ShooterCommand(shooterSub, 0.6));
+    new JoystickButton(oController, 5).whileTrue(new IntakeCommand(intakeSub, 0.4));
+    new JoystickButton(oController, 6).whileTrue(new IntakeCommand(intakeSub, -0.4));
+
     
 
 
 
-    new JoystickButton(dController, 5).whileTrue(armSub.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    new JoystickButton(dController, 6).whileTrue(armSub.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    new JoystickButton(dController, 4).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    new JoystickButton(dController, 2).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // new JoystickButton(dController, 5).whileTrue(armSub.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // new JoystickButton(dController, 6).whileTrue(armSub.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // new JoystickButton(dController, 4).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // new JoystickButton(dController, 2).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   
     // begin path-planning branch contents
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`

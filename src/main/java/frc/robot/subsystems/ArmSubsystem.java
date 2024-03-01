@@ -14,7 +14,7 @@ import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -35,27 +35,30 @@ public class ArmSubsystem extends SubsystemBase {
 
 
   public ArmSubsystem() {
-    encoder.setDistancePerPulse(4/256);
 
     leftArmMotor.setInverted(true);
     rightArmMotor.setInverted(false);
 
     leftArmMotor.setNeutralMode(NeutralMode.Brake);
     rightArmMotor.setNeutralMode(NeutralMode.Brake);
+
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    SmartDashboard.putNumber("arm Position", getArmPosition());
+    SmartDashboard.putNumber("arm ticks", encoder.getDistance());
   }
 
-  public void setArm(double speed) {
+  public void setArmSpeed(double speed) {
     leftArmMotor.set(speed);
     rightArmMotor.set(speed);
   }
 
   public double getArmPosition(){
-    return encoder.getDistance();
+    return encoder.get()*(360/(2.25*4));
   }
 
   public double getRatePosition(){

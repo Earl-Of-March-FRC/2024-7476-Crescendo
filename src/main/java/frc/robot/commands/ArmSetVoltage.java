@@ -4,17 +4,15 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class ArmCommand extends Command {
+public class ArmSetVoltage extends Command {
   private ArmSubsystem armSub;
   private double speed;
 
   /** Creates a new ArmCommand. */
-  public ArmCommand(ArmSubsystem armSub, double speed) {
+  public ArmSetVoltage(ArmSubsystem armSub, double speed) {
     this.armSub = armSub;
     this.speed = speed;
 
@@ -25,7 +23,7 @@ public class ArmCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    armSub.setArm(speed);
+    armSub.setArmSpeed(speed);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -35,7 +33,7 @@ public class ArmCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    armSub.setArm(0);
+    armSub.setArmSpeed(0);
   }
 
   // Returns true when the command should end.
