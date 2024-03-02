@@ -64,6 +64,7 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController dController = new XboxController(0);
   private final XboxController oController = new XboxController(1);
+
   private final SendableChooser<Command> autoChooser;
 
   private Command toSource = drive.toSource();
@@ -76,7 +77,9 @@ public class RobotContainer {
     drive.resetGyro();
 
     drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY(), () -> -dController.getRightY()));
-    // Configure the trigger bindings
+
+    // armSub.setDefaultCommand(new ArmSetVoltage(armSub, () -> -oController.getLeftY()));
+
     configureBindings();
 
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -95,11 +98,17 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    new JoystickButton(oController, 2).whileTrue(new ArmSetVoltage(armSub, 0.3));
-    new JoystickButton(oController, 3).whileTrue(new ArmSetVoltage(armSub, -0.3));
-    new JoystickButton(oController, 4).whileTrue(new ShooterCommand(shooterSub, 0.6));
-    new JoystickButton(oController, 5).whileTrue(new IntakeCommand(intakeSub, 0.4));
-    new JoystickButton(oController, 6).whileTrue(new IntakeCommand(intakeSub, -0.4));
+    
+    // Red B Button
+    new JoystickButton(oController, 2).whileTrue(new ArmSetVoltage(armSub, 0.6));
+    // Blue X Button
+    new JoystickButton(oController, 3).whileTrue(new ArmSetVoltage(armSub, -0.6));
+    // Orange Y button
+    new JoystickButton(oController, 4).whileTrue(new ShooterCommand(shooterSub, 12));
+    // Left bumper
+    new JoystickButton(oController, 5).whileTrue(new IntakeCommand(intakeSub, 0.7));
+    // Right bumper
+    new JoystickButton(oController, 6).whileTrue(new IntakeCommand(intakeSub, -0.7));
 
     
 

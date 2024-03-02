@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
 
@@ -12,9 +14,9 @@ public class ArmSetVoltage extends Command {
   private double speed;
 
   /** Creates a new ArmCommand. */
-  public ArmSetVoltage(ArmSubsystem armSub, double speed) {
+  public ArmSetVoltage(ArmSubsystem armSub, double d) {
     this.armSub = armSub;
-    this.speed = speed;
+    this.speed = d;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(armSub);

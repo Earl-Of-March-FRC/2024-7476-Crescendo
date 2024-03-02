@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.MutableMeasure;
@@ -14,6 +15,9 @@ import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,6 +29,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Map;
+
 
 public class ArmSubsystem extends SubsystemBase {
   /** Creates a new ArmSubsystem. */
@@ -32,6 +38,7 @@ public class ArmSubsystem extends SubsystemBase {
   private final WPI_TalonSRX rightArmMotor = new WPI_TalonSRX(5);
 
   private final Encoder encoder = new Encoder(0, 1);
+
 
 
   public ArmSubsystem() {
@@ -42,6 +49,8 @@ public class ArmSubsystem extends SubsystemBase {
     leftArmMotor.setNeutralMode(NeutralMode.Brake);
     rightArmMotor.setNeutralMode(NeutralMode.Brake);
 
+    encoder.setDistancePerPulse(360/2048);
+
   }
 
   @Override
@@ -49,16 +58,16 @@ public class ArmSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
 
     SmartDashboard.putNumber("arm Position", getArmPosition());
-    SmartDashboard.putNumber("arm ticks", encoder.getDistance());
   }
 
   public void setArmSpeed(double speed) {
+
     leftArmMotor.set(speed);
     rightArmMotor.set(speed);
   }
 
   public double getArmPosition(){
-    return encoder.get()*(360/(2.25*4));
+    return encoder.getDistance()+90;
   }
 
   public double getRatePosition(){
