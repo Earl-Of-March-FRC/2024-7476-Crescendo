@@ -74,12 +74,15 @@ public class ArmSubsystem extends SubsystemBase {
     return encoder.getRate();
   }
 
+  public double calculateSpeakerAngle(double distance){
+    return Math.atan(Constants.ArmConstants.speakerHeightOffset / distance) - 30;
+  }
 
   private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
   // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
   private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
   // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
-  private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+  private  MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
 
   // Create a new SysId routine for characterizing the drive.
   private final SysIdRoutine m_sysIdRoutine =

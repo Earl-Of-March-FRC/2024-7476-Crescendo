@@ -39,6 +39,8 @@ public final class Constants {
 
     public static final DifferentialDriveKinematics Dkinematics = new DifferentialDriveKinematics(Units.inchesToMeters(24.8)); // distance between left and right wheels in metres
 
+    public static final double blueAllianceSpeakerPosX = 0.32;
+    public static final double blueAllianceSpeakerPosY = 5.55;
     
   }
 
@@ -47,7 +49,9 @@ public final class Constants {
     public final static double I = 0;
     public final static double D = 0;
 
-    }
+    public static final double speakerHeightOffset = 1.77;
+
+  }
 
   
 }

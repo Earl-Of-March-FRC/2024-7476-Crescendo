@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ArmPID;
 import frc.robot.commands.ArmSetVoltage;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShooterCommand;
@@ -56,7 +57,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  private final DrivetrainSubsystem drive = new DrivetrainSubsystem();
+  private final DrivetrainSubsystem driveSub = new DrivetrainSubsystem();
   private final ArmSubsystem armSub = new ArmSubsystem();
   private final ShooterSubsystem shooterSub = new ShooterSubsystem();
   private final IntakeSubsystem intakeSub = new IntakeSubsystem();
@@ -67,16 +68,16 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autoChooser;
 
-  private Command toSource = drive.toSource();
-  private Command toAmp = drive.toAmp();
+  private Command toSource = driveSub.toSource();
+  private Command toAmp = driveSub.toAmp();
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    drive.resetGyro();
+    driveSub.resetGyro();
 
-    drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY(), () -> -dController.getRightY()));
+    driveSub.setDefaultCommand(new TankDriveCmd(driveSub, () -> -dController.getLeftY(), () -> -dController.getRightY()));
 
     // armSub.setDefaultCommand(new ArmSetVoltage(armSub, () -> -oController.getLeftY()));
 
@@ -110,6 +111,9 @@ public class RobotContainer {
     // Right bumper
     new JoystickButton(oController, 6).whileTrue(new IntakeCommand(intakeSub, -0.7));
 
+    // moves arm to the correct angle in order to score in speaker
+    new JoystickButton(oController, 8).whileTrue(new ArmPID(armSub, armSub.calculateSpeakerAngle(driveSub.getDistanceFromApriltag())));
+
     
 
 
@@ -127,10 +131,10 @@ public class RobotContainer {
     // new JoystickButton(dController, 5).whileTrue(toSource);
     // new JoystickButton(dController,6).whileTrue(toAmp);
     // new JoystickButton(dController, 3).onTrue(new CancelDriveAutos(toSource, toAmp));
-    // new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // new JoystickButton(dController, 2).whileTrue(driveSub.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // end path-planning branch
 
-    // new JoystickButton(dController, 3).onTrue(new test(drive));
+    // new JoystickButton(dController, 3).onTrue(new test(driveSub));
   }
 
   /**
@@ -177,21 +181,21 @@ public class RobotContainer {
     //     RamseteCommand ramseteCommand =
     //         new RamseteCommand(
     //             exampleTrajectory,
-    //             drive::getPose,
+    //             driveSub::getPose,
     //             new RamseteController(DrivetrainConstants.kRamseteB, DrivetrainConstants.kRamseteZeta),
     //             new SimpleMotorFeedforward(
     //                 DrivetrainConstants.ks,
     //                 DrivetrainConstants.kv,
     //                 DrivetrainConstants.ka),
     //             DrivetrainConstants.Dkinematics,
-    //             drive::getWheelSpeeds,
+    //             driveSub::getWheelSpeeds,
     //             new PIDController(DrivetrainConstants.P, 0.0, 0.0),
     //             new PIDController(DrivetrainConstants.P, 0.0, 0.0),
     //             // RamseteCommand passes volts to the callback
-    //             drive::tankDriveVolts,
-    //             drive);
+    //             driveSub::tankDriveVolts,
+    //             driveSub);
 
 
-    // return ramseteCommand.andThen(Commands.runOnce(() -> drive.tankDriveVolts(0, 0)));
+    // return ramseteCommand.andThen(Commands.runOnce(() -> driveSub.tankDriveVolts(0, 0)));
   }
 }

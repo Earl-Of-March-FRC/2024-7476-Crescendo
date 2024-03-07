@@ -61,6 +61,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants;
 import edu.wpi.first.wpilibj.I2C.Port;
 
@@ -241,6 +242,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public void resetGyro(){
     gyro.reset();
+  }
+
+  public double getDistanceFromApriltag() {
+    // calculate where bot is compared to apriltag/speaker
+    double distX = Math.abs(getPose().getX() - Constants.DrivetrainConstants.blueAllianceSpeakerPosX);
+    double distY = Math.abs(getPose().getY() - Constants.DrivetrainConstants.blueAllianceSpeakerPosY);
+
+    // pythagorean theorem
+    double distance = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
+
+    return distance;
   }
 
   @Override
