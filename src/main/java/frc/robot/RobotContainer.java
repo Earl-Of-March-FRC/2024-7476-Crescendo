@@ -83,8 +83,12 @@ public class RobotContainer {
     NamedCommands.registerCommand("ArmAmp", new ArmPID(armSub, 100));
     NamedCommands.registerCommand("ArmIntake", new ArmPID(armSub, 10));
     NamedCommands.registerCommand("IntakeStart", new IntakeCommand(intakeSub, 0.7));
-    NamedCommands.registerCommand("Intake Reverse", new IntakeCommand(intakeSub, -0.5));
-    NamedCommands.registerCommand("Shooter Start", new ShooterCommand(shooterSub, 10));
+    NamedCommands.registerCommand("IntakeReverse", new IntakeCommand(intakeSub, -0.5));
+    NamedCommands.registerCommand("IntakeStop", new IntakeCommand(intakeSub, 0));
+    NamedCommands.registerCommand("ShooterStart", new ShooterCommand(shooterSub, 0.7));
+    NamedCommands.registerCommand("ShooterStop", new ShooterCommand(shooterSub, 0));
+    NamedCommands.registerCommand("ArmShooter", new ArmPID(armSub, 15));
+
 
 
 
