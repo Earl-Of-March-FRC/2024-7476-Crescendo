@@ -4,19 +4,29 @@
 
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.ArmSubsystem;
 
+// led count 151
+
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class ArmPID extends SequentialCommandGroup {
-  /** Creates a new ArmPID. */
-  public ArmPID(ArmSubsystem arm, double goalAngle) {
+public class ArmControl extends SequentialCommandGroup {
+  /** Creates a new ArmControl. */
+  public ArmControl(ArmSubsystem armsub, DoubleSupplier speed) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new ArmMoveAuto(arm, goalAngle).raceWith(new WaitCommand(1.7)));
-    addRequirements(arm);
+    
+    addCommands(
+      new ArmMoveManual(armsub, speed).onlyWhile(() -> armsub.getArmPosition()<110),
+      new ArmPID(armsub, 105).onlyIf(() -> armsub.getArmPosition()>110)
+      );
+    addRequirements(armsub);
+
+    // addCommands(new ArmPID(armsub, 102).onlyIf( () -> armsub.getArmPosition()>110));
   }
 }

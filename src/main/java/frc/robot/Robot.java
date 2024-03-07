@@ -4,7 +4,13 @@
 
 package frc.robot;
 
+import java.sql.Driver;
+
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -17,6 +23,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
+      AddressableLED m_led = new AddressableLED(1);
+      AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(60);
+
   private RobotContainer m_robotContainer;
 
   /**
@@ -28,6 +37,23 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    m_robotContainer.drive.resetGyro();
+
+      m_led.setLength(151);
+
+      m_led.setData(m_ledBuffer);
+      m_led.start();
+
+    if(DriverStation.getAlliance().get() == Alliance.Blue){
+      for(var i = 0; i < m_ledBuffer.getLength(); i++){
+        m_ledBuffer.setRGB(i, 0, 0, 255);
+      }
+    }else{
+      for(var i = 0; i < m_ledBuffer.getLength(); i++){
+        m_ledBuffer.setRGB(i, 255, 0, 0);
+      }
+    }
   }
 
   /**

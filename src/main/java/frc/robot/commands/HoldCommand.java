@@ -4,42 +4,33 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 
-public class IntakeCommand extends Command {
-  private IntakeSubsystem intakeSub;
-  private double speed;
-
-  /** Creates a new ArmCommand. */
-  public IntakeCommand(IntakeSubsystem intakeSub, double speed) {
-    this.intakeSub = intakeSub;
-    this.speed = speed;
-
+public class HoldCommand extends Command {
+  /** Creates a new HoldCommand. */
+  ArmSubsystem armSub;
+  double angle;
+  public HoldCommand(ArmSubsystem armSub) {
+    this.armSub = armSub;
+    angle = armSub.getArmPosition();
+    addRequirements(armSub);
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(intakeSub);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intakeSub.setIntakeSpeed(speed);
+    armSub.hold(angle);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    intakeSub.setIntakeSpeed(0);
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override

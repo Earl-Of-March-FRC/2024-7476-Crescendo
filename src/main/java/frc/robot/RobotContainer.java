@@ -6,10 +6,14 @@ package frc.robot;
 
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.ArmSetVoltage;
+import frc.robot.commands.ArmControl;
+import frc.robot.commands.ArmMoveManual;
+import frc.robot.commands.ArmPID;
+import frc.robot.commands.ArmMoveAuto;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.CancelDriveAutos;
+import frc.robot.commands.HoldCommand;
 import frc.robot.commands.TankDriveCmd;
 import frc.robot.commands.test;
 import frc.robot.subsystems.ArmSubsystem;
@@ -21,6 +25,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import java.util.List;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -41,6 +46,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -56,7 +62,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  private final DrivetrainSubsystem drive = new DrivetrainSubsystem();
+  final DrivetrainSubsystem drive = new DrivetrainSubsystem();
   private final ArmSubsystem armSub = new ArmSubsystem();
   private final ShooterSubsystem shooterSub = new ShooterSubsystem();
   private final IntakeSubsystem intakeSub = new IntakeSubsystem();
@@ -74,11 +80,19 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
+    NamedCommands.registerCommand("ArmAmp", new ArmPID(armSub, 100));
+    NamedCommands.registerCommand("ArmIntake", new ArmPID(armSub, 10));
+    NamedCommands.registerCommand("IntakeStart", new IntakeCommand(intakeSub, 0.7));
+    NamedCommands.registerCommand("Intake Reverse", new IntakeCommand(intakeSub, -0.5));
+    NamedCommands.registerCommand("Shooter Start", new ShooterCommand(shooterSub, 10));
+
+
+
     drive.resetGyro();
 
     drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY(), () -> -dController.getRightY()));
 
-    // armSub.setDefaultCommand(new ArmSetVoltage(armSub, () -> -oController.getLeftY()));
+    armSub.setDefaultCommand(new ArmControl(armSub, () -> -oController.getLeftY()));
 
     configureBindings();
 
@@ -100,9 +114,9 @@ public class RobotContainer {
 
     
     // Red B Button
-    new JoystickButton(oController, 2).whileTrue(new ArmSetVoltage(armSub, 0.6));
-    // Blue X Button
-    new JoystickButton(oController, 3).whileTrue(new ArmSetVoltage(armSub, -0.6));
+    // new JoystickButton(oController, 2).whileTrue(new ArmControl(armSub, 0.6));
+    // // Blue X Button
+    // new JoystickButton(oController, 3).whileTrue(new ArmControl(armSub, -0.6));
     // Orange Y button
     new JoystickButton(oController, 4).whileTrue(new ShooterCommand(shooterSub, 12));
     // Left bumper
@@ -114,18 +128,25 @@ public class RobotContainer {
 
 
 
-    // new JoystickButton(dController, 5).whileTrue(armSub.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // new JoystickButton(dController, 6).whileTrue(armSub.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // new JoystickButton(dController, 4).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // new JoystickButton(dController, 2).whileTrue(armSub.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    new JoystickButton(dController, 5).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    new JoystickButton(dController, 6).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    new JoystickButton(dController, 4).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    
+
+    new JoystickButton(oController, 3).whileTrue(new ArmPID(armSub, 100));
+    new JoystickButton(oController, 1).whileTrue(new ArmPID(armSub, 10));
+    new JoystickButton(oController, 7).whileTrue(new ArmPID(armSub, 70));
+    new JoystickButton(oController, 2).whileTrue(new HoldCommand(armSub));
   
     // begin path-planning branch contents
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    // new Trigger(m_exampleSubsystem::exampleCondition)
-    //    .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // new JoystickButton(dController, 5).whileTrue(toSource);
-    // new JoystickButton(dController,6).whileTrue(toAmp);
+    // new Trigger( () -> (armSub.getArmPosition() > 107)).onTrue(new ArmPID(armSub, 107));
+
+    // new JoystickButton(dController, 5).whileTrue(drive.toSource());
+    // new JoystickButton(dController,6).whileTrue(drive.toAmp());
     // new JoystickButton(dController, 3).onTrue(new CancelDriveAutos(toSource, toAmp));
     // new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // end path-planning branch
