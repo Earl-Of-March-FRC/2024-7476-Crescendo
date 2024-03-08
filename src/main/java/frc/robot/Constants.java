@@ -23,13 +23,13 @@ public final class Constants {
 
   public class DrivetrainConstants {
 
-    public final static double ks = 0.3137;
-    public final static double kv = 1.9968;
-    public final static double ka = 0.22;
+    public static final double ks = 0.3;
+    public static final double kv = 2.77;
+    public static final double ka = 0.25;
 
-    public final static double P = 0.8;
-    final double I = 0;
-    final double D = 0;
+    public static final double P = 0.65;
+    public static final double I = 0;
+    public static final double D = 0;
 
     public static final double kMaxSpeedMetersPerSecond = 1.5;
     public static final double kMaxAccelerationMetersPerSecondSquared = 2;
@@ -39,20 +39,19 @@ public final class Constants {
 
     public static final DifferentialDriveKinematics Dkinematics = new DifferentialDriveKinematics(Units.inchesToMeters(24.8)); // distance between left and right wheels in metres
 
-    
   }
 
   public class ArmConstants {
 
-    public final static double ks = 2.9347;
-    public final static double kv = 15.577;
-    public final static double ka = 3.4946;
-    public final static double kg = 80.867;
+    public static final double ks = 2.9347;
+    public static final double kv = 15.577;
+    public static final double ka = 3.4946;
+    public static final double kg = 80.867;
 
 
-    public final static double PositionP = 0.17368;
-    final static double I = 0;
-    public final static double PositionD = 0.095519;
+    public static final double PositionP = 0.17368;
+    public static final double I = 0;
+    public static final double PositionD = 0.095519;
 
     // public static final double kMaxSpeedMetersPerSecond = 1.5;
     // public static final double kMaxAccelerationMetersPerSecondSquared = 2;

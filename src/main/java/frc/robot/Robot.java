@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.sql.Driver;
-
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -24,7 +22,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
       AddressableLED m_led = new AddressableLED(1);
-      AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(60);
+      AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(151);
 
   private RobotContainer m_robotContainer;
 
@@ -40,20 +38,21 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.drive.resetGyro();
 
-      m_led.setLength(151);
+      m_led.setLength(m_ledBuffer.getLength());
 
       m_led.setData(m_ledBuffer);
       m_led.start();
 
-    if(DriverStation.getAlliance().get() == Alliance.Blue){
+    if (DriverStation.getAlliance().get() == Alliance.Blue) {
       for(var i = 0; i < m_ledBuffer.getLength(); i++){
-        m_ledBuffer.setRGB(i, 0, 0, 255);
+        m_ledBuffer.setRGB(i, 0, 255/3, 255);
       }
-    }else{
+    } else if (DriverStation.getAlliance().get() == Alliance.Red) {
       for(var i = 0; i < m_ledBuffer.getLength(); i++){
-        m_ledBuffer.setRGB(i, 255, 0, 0);
+        m_ledBuffer.setRGB(i, 255, 255/3, 0);
       }
     }
+    m_led.setData(m_ledBuffer);
   }
 
   /**
