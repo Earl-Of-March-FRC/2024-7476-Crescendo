@@ -10,6 +10,7 @@ import frc.robot.commands.ArmControl;
 import frc.robot.commands.ArmPID;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ReleaseIntakeToShooter;
+import frc.robot.commands.SetLEDColour;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.SpeakerMoveArm;
 import frc.robot.commands.HoldCommand;
@@ -18,6 +19,7 @@ import frc.robot.commands.WaitAndShoot;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -27,6 +29,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -44,6 +48,7 @@ public class RobotContainer {
   final ArmSubsystem armSub = new ArmSubsystem();
   final ShooterSubsystem shooterSub = new ShooterSubsystem();
   final IntakeSubsystem intakeSub = new IntakeSubsystem();
+  final LEDSubsystem ledSub = new LEDSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController dController = new XboxController(0);
@@ -124,6 +129,15 @@ public class RobotContainer {
     new JoystickButton(oController, 10).whileTrue(new SpeakerMoveArm(armSub)); // move arm to shoot in speaker
     // button B
     new JoystickButton(oController, 2).whileTrue(new HoldCommand(armSub)); // arm feedforward
+
+
+    // blink LEDs white when the ultrasonic sensor detects a note 
+    new Trigger( () -> intakeSub.getUltrasonicDistance() < 15).whileTrue(
+      new SequentialCommandGroup( 
+        new SetLEDColour(ledSub, 3),
+        new WaitCommand(2),
+        new SetLEDColour(ledSub, ledSub.getDefaultColour())
+      ));
   
     // begin path-planning branch contents
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`

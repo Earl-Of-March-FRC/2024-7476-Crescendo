@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -11,6 +12,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.LEDSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -21,8 +23,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-      AddressableLED m_led = new AddressableLED(1);
-      AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(151);
+  //     AddressableLED m_led = new AddressableLED(1);
+  //     AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(151);
 
   private RobotContainer m_robotContainer;
 
@@ -35,24 +37,25 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    CameraServer.startAutomaticCapture();
 
     m_robotContainer.drive.resetGyro();
 
-      m_led.setLength(m_ledBuffer.getLength());
+    //   m_led.setLength(m_ledBuffer.getLength());
 
-      m_led.setData(m_ledBuffer);
-      m_led.start();
+    //   m_led.setData(m_ledBuffer);
+    //   m_led.start();
 
-    if (DriverStation.getAlliance().get() == Alliance.Blue) {
-      for(var i = 0; i < m_ledBuffer.getLength(); i++){
-        m_ledBuffer.setRGB(i, 0, 255/3, 255);
-      }
-    } else if (DriverStation.getAlliance().get() == Alliance.Red) {
-      for(var i = 0; i < m_ledBuffer.getLength(); i++){
-        m_ledBuffer.setRGB(i, 255, 255/3, 0);
-      }
-    }
-    m_led.setData(m_ledBuffer);
+    // if (DriverStation.getAlliance().get() == Alliance.Blue) {
+    //   for(var i = 0; i < m_ledBuffer.getLength(); i++){
+    //     m_ledBuffer.setRGB(i, 0, 255/3, 255);
+    //   }
+    // } else if (DriverStation.getAlliance().get() == Alliance.Red) {
+    //   for(var i = 0; i < m_ledBuffer.getLength(); i++){
+    //     m_ledBuffer.setRGB(i, 255, 255/3, 0);
+    //   }
+    // }
+    // m_led.setData(m_ledBuffer);
   }
 
   /**
@@ -110,7 +113,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  
+  }
 
   @Override
   public void testInit() {
