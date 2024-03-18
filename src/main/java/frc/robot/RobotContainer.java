@@ -131,11 +131,10 @@ public class RobotContainer {
     new JoystickButton(oController, 2).whileTrue(new HoldCommand(armSub)); // arm feedforward
 
 
-    // blink LEDs white when the ultrasonic sensor detects a note 
+    // make LEDs white when the ultrasonic sensor detects a note 
     new Trigger( () -> intakeSub.getUltrasonicDistance() < 15).whileTrue(
       new SequentialCommandGroup( 
-        new SetLEDColour(ledSub, 3),
-        new WaitCommand(2),
+        new SetLEDColour(ledSub, 3).until(() -> !(intakeSub.getUltrasonicDistance() < 15)),
         new SetLEDColour(ledSub, ledSub.getDefaultColour())
       ));
   
