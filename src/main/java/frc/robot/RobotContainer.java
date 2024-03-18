@@ -133,7 +133,7 @@ public class RobotContainer {
 
 
     // make LEDs white when the ultrasonic sensor detects a note 
-    new Trigger( () -> intakeSub.getUltrasonicDistance() < 15).whileTrue(
+    new Trigger( () -> intakeSub.getUltrasonicDistance() < 15).onTrue(
       new SequentialCommandGroup( 
         new SetLEDColour(ledSub, Colours.WHITE).until(() -> !(intakeSub.getUltrasonicDistance() < 15)),
         new SetLEDColour(ledSub, ledSub.getDefaultColour())
