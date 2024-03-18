@@ -20,7 +20,7 @@ public class WaitAndShoot extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new ShooterCommand(shooterSub, 12).raceWith(new WaitCommand(0.5)),
+      new ShooterCommand(shooterSub, 12).raceWith(new WaitCommand(1)),
       new IntakeCommand(intakeSub, 0.7).alongWith(new ShooterCommand(shooterSub, 12)).raceWith(new WaitCommand(0.5))
     );
 

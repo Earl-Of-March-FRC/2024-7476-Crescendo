@@ -132,6 +132,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     drive.tankDrive(left.getAsDouble(), right.getAsDouble());
   }
 
+  public void arcadeDrive(DoubleSupplier throttle, DoubleSupplier turn){
+    drive.arcadeDrive(throttle.getAsDouble(), turn.getAsDouble());
+  }
+
   public void chassisSpeedsDrive(ChassisSpeeds chassis){
 
     DifferentialDriveWheelSpeeds speeds = kinematics.toWheelSpeeds(chassis);
@@ -224,66 +228,66 @@ public class DrivetrainSubsystem extends SubsystemBase {
     gyro.reset();
   }
 
-  private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
-  // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
-  private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
-  // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
-  private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+  // private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+  // // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+  // private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
+  // // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+  // private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
 
-  // Create a new SysId routine for characterizing the drive.
-  private final SysIdRoutine m_sysIdRoutine =
-      new SysIdRoutine(
-          // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-          new SysIdRoutine.Config(),
-          new SysIdRoutine.Mechanism(
-              // Tell SysId how to plumb the driving voltage to the motors.
-              (Measure<Voltage> volts) -> {
-                leftFront.setVoltage(volts.in(Volts));
-                rightFront.setVoltage(volts.in(Volts));
-              },
-              // Tell SysId how to record a frame of data for each motor on the mechanism being
-              // characterized.
-              log -> {
-                // Record a frame for the left motors.  Since these share an encoder, we consider
-                // the entire group to be one motor.
-                log.motor("drive-left")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            leftFront.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(getLeftDistance(), Meters))
-                    .linearVelocity(
-                        m_velocity.mut_replace(getLeftVelocity(), MetersPerSecond));
-                // Record a frame for the right motors.  Since these share an encoder, we consider
-                // the entire group to be one motor.
-                log.motor("drive-right")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            rightFront.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(getRightDistance(), Meters))
-                    .linearVelocity(
-                        m_velocity.mut_replace(getRightVelocity(), MetersPerSecond));
-              },
-              // Tell SysId to make generated commands require this subsystem, suffix test state in
-              // WPILog with this subsystem's name ("drive")
-              this));
+  // // Create a new SysId routine for characterizing the drive.
+  // private final SysIdRoutine m_sysIdRoutine =
+  //     new SysIdRoutine(
+  //         // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+  //         new SysIdRoutine.Config(),
+  //         new SysIdRoutine.Mechanism(
+  //             // Tell SysId how to plumb the driving voltage to the motors.
+  //             (Measure<Voltage> volts) -> {
+  //               leftFront.setVoltage(volts.in(Volts));
+  //               rightFront.setVoltage(volts.in(Volts));
+  //             },
+  //             // Tell SysId how to record a frame of data for each motor on the mechanism being
+  //             // characterized.
+  //             log -> {
+  //               // Record a frame for the left motors.  Since these share an encoder, we consider
+  //               // the entire group to be one motor.
+  //               log.motor("drive-left")
+  //                   .voltage(
+  //                       m_appliedVoltage.mut_replace(
+  //                           leftFront.get() * RobotController.getBatteryVoltage(), Volts))
+  //                   .linearPosition(m_distance.mut_replace(getLeftDistance(), Meters))
+  //                   .linearVelocity(
+  //                       m_velocity.mut_replace(getLeftVelocity(), MetersPerSecond));
+  //               // Record a frame for the right motors.  Since these share an encoder, we consider
+  //               // the entire group to be one motor.
+  //               log.motor("drive-right")
+  //                   .voltage(
+  //                       m_appliedVoltage.mut_replace(
+  //                           rightFront.get() * RobotController.getBatteryVoltage(), Volts))
+  //                   .linearPosition(m_distance.mut_replace(getRightDistance(), Meters))
+  //                   .linearVelocity(
+  //                       m_velocity.mut_replace(getRightVelocity(), MetersPerSecond));
+  //             },
+  //             // Tell SysId to make generated commands require this subsystem, suffix test state in
+  //             // WPILog with this subsystem's name ("drive")
+  //             this));
 
-    /**
-   * Returns a command that will execute a quasistatic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.quasistatic(direction);
-  }
+  //   /**
+  //  * Returns a command that will execute a quasistatic test in the given direction.
+  //  *
+  //  * @param direction The direction (forward or reverse) to run the test in
+  //  */
+  // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+  //   return m_sysIdRoutine.quasistatic(direction);
+  // }
 
-  /**
-   * Returns a command that will execute a dynamic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.dynamic(direction);
-  }
+  // /**
+  //  * Returns a command that will execute a dynamic test in the given direction.
+  //  *
+  //  * @param direction The direction (forward or reverse) to run the test in
+  //  */
+  // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+  //   return m_sysIdRoutine.dynamic(direction);
+  // }
 
 
   @Override

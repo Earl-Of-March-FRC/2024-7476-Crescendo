@@ -9,6 +9,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ArmControl;
 import frc.robot.commands.ArmPID;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.ReleaseIntakeToShooter;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.SpeakerMoveArm;
 import frc.robot.commands.HoldCommand;
@@ -40,9 +41,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 public class RobotContainer {
 
   final DrivetrainSubsystem drive = new DrivetrainSubsystem();
-  private final ArmSubsystem armSub = new ArmSubsystem();
-  private final ShooterSubsystem shooterSub = new ShooterSubsystem();
-  private final IntakeSubsystem intakeSub = new IntakeSubsystem();
+  final ArmSubsystem armSub = new ArmSubsystem();
+  final ShooterSubsystem shooterSub = new ShooterSubsystem();
+  final IntakeSubsystem intakeSub = new IntakeSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController dController = new XboxController(0);
@@ -60,7 +61,14 @@ public class RobotContainer {
     NamedCommands.registerCommand("ArmIntake", new ArmPID(armSub, 10));
     NamedCommands.registerCommand("IntakeStart", new IntakeCommand(intakeSub, 0.7));
     NamedCommands.registerCommand("IntakeReverse", new IntakeCommand(intakeSub, -0.5));
+    NamedCommands.registerCommand("Shoot", new WaitAndShoot(shooterSub, intakeSub));
+
+    // NamedCommands.registerCommand("HoldArm", new HoldCommand(armSub));
+    NamedCommands.registerCommand("ArmSpeaker", new SpeakerMoveArm(armSub));
     NamedCommands.registerCommand("ShooterStart", new ShooterCommand(shooterSub, 12));
+
+
+
 
     drive.resetGyro();
 
@@ -87,24 +95,23 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
     
     // Red B Button
     // new JoystickButton(oController, 2).whileTrue(new ArmControl(armSub, 0.6));
     // // Blue X Button
     // new JoystickButton(oController, 3).whileTrue(new ArmControl(armSub, -0.6));
+
     // Orange Y button
-    new JoystickButton(oController, 4).onTrue(new WaitAndShoot(shooterSub, intakeSub));
+    new JoystickButton(oController, 4).onTrue(new WaitAndShoot(shooterSub, intakeSub)); // auto shooting
+
+    new JoystickButton(oController, 4).whileTrue(new ShooterCommand(shooterSub, 12)); // rev shooter and release to shoot
+    new Trigger(() -> oController.getYButtonReleased()).onTrue(new ReleaseIntakeToShooter(shooterSub, intakeSub));
+
     // Left bumper
     new JoystickButton(oController, 5).whileTrue(new IntakeCommand(intakeSub, 0.7));
     // Right bumper
     new JoystickButton(oController, 6).whileTrue(new IntakeCommand(intakeSub, -0.7));
 
-    // sysId
-    // new JoystickButton(dController, 5).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // new JoystickButton(dController, 6).whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // new JoystickButton(dController, 4).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // arm
     // button X
@@ -129,7 +136,7 @@ public class RobotContainer {
     // new JoystickButton(dController, 2).whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // end path-planning branch
 
-    // new JoystickButton(dController, 3).onTrue(new test(drive));
+    // new JoystickButton+(dController, 3).onTrue(new test(drive));
   }
 
   /**

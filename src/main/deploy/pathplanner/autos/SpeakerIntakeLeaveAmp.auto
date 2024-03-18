@@ -2,32 +2,19 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7531929553170282,
-      "y": 4.445889746886382
+      "x": 0.8896895703530137,
+      "y": 6.5518375217273
     },
-    "rotation": -60.0
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "ArmSpeaker"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 1.5
-                }
-              }
-            ]
+            "name": "ArmSpeaker"
           }
         },
         {
@@ -39,11 +26,43 @@
                 "data": {
                   "name": "Shoot"
                 }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "ShootSpeakerIntakeAmp"
+                }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "ArmSpeaker"
+                  "name": "IntakeStart"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.2
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeReverse"
                 }
               }
             ]
@@ -52,7 +71,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ShootSpeakerLeaveSource"
+            "pathName": "AmpNoteLeave"
           }
         }
       ]

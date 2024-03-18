@@ -45,7 +45,7 @@ public class ArmSubsystem extends SubsystemBase {
   private final WPI_TalonSRX leftArmMotor = new WPI_TalonSRX(6);
   private final WPI_TalonSRX rightArmMotor = new WPI_TalonSRX(5);
 
-  private final Encoder encoder = new Encoder(0, 1);
+  private final Encoder encoder = new Encoder(0, 2);
 
   private final ArmFeedforward feedforward = new ArmFeedforward(2, 3, 15, 3);
   private final PIDController pid = new PIDController(0.04, 0, 0);

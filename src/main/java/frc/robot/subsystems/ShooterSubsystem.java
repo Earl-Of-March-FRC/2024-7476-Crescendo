@@ -37,6 +37,18 @@ public class ShooterSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  public void setBrakeMode(){
+    blueShooter.setNeutralMode(NeutralMode.Brake);
+    orangeShooter.setNeutralMode(NeutralMode.Brake);
+
+  }
+
+  public void setCoastMode(){
+    blueShooter.setNeutralMode(NeutralMode.Coast);
+    orangeShooter.setNeutralMode(NeutralMode.Coast);
+
+  }
+
   public void setShooterSpeed(double speed) {
 
     double x = SmartDashboard.getNumber("Shooter speed", 1.0);

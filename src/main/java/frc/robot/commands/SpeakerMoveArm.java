@@ -16,7 +16,7 @@ public class SpeakerMoveArm extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new ArmPID(armSub, 23),
+      new ArmPID(armSub, 17),
       new HoldCommand(armSub)
     );
   }
