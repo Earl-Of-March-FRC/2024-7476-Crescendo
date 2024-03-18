@@ -6,13 +6,15 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem.Colours;;
+
 
 public class SetLEDColour extends Command {
   /** Creates a new SetLEDColour. */
 
   private LEDSubsystem ledSub;
-  private int colour;
-  public SetLEDColour(LEDSubsystem ledSub, int colour) {
+  private Colours colour;
+  public SetLEDColour(LEDSubsystem ledSub, Colours colour) {
     this.colour = colour;
     this.ledSub = ledSub;
     addRequirements(ledSub);

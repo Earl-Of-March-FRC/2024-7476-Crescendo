@@ -13,7 +13,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class LEDSubsystem extends SubsystemBase {
   AddressableLED m_led = new AddressableLED(1);
   AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(151);
-  int defaultColour;
+
+  public enum Colours {
+    WHITE,
+    RED,
+    BLUE
+  }
+  Colours defaultColour;
+
 
   /** Creates a new LEDSubsystem. */
   public LEDSubsystem() {
@@ -26,25 +33,25 @@ public class LEDSubsystem extends SubsystemBase {
     m_led.start();
 
     if (DriverStation.getAlliance().get() == Alliance.Blue) {
-      defaultColour = 1;
+      defaultColour = Colours.BLUE;
     } else if (DriverStation.getAlliance().get() == Alliance.Red) {
-      defaultColour = 2;
+      defaultColour = Colours.RED;
     }
     setLEDColour(defaultColour);
   }
 
-  public void setLEDColour(int colour){
+  public void setLEDColour(Colours colour){
     for(var i = 0; i < m_ledBuffer.getLength(); i++){
       switch(colour){
-        case 1 -> m_ledBuffer.setRGB(i, 0, 255/3, 255); // blue
-        case 2 -> m_ledBuffer.setRGB(i, 255, 255/3, 0); // red
-        case 3 -> m_ledBuffer.setRGB(i, 255, 255, 255); // white (? needs to be tested)
+        case BLUE -> m_ledBuffer.setRGB(i, 0, 255/3, 255); // blue
+        case RED -> m_ledBuffer.setRGB(i, 255, 255/3, 0); // red
+        case WHITE -> m_ledBuffer.setRGB(i, 255, 255, 255); // white (? needs to be tested)
       }
     }
     m_led.setData(m_ledBuffer);
   }
 
-  public int getDefaultColour(){
+  public Colours getDefaultColour(){
     return defaultColour;
   }
 

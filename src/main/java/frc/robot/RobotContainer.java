@@ -21,6 +21,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.LEDSubsystem.Colours;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -134,7 +135,7 @@ public class RobotContainer {
     // make LEDs white when the ultrasonic sensor detects a note 
     new Trigger( () -> intakeSub.getUltrasonicDistance() < 15).whileTrue(
       new SequentialCommandGroup( 
-        new SetLEDColour(ledSub, 3).until(() -> !(intakeSub.getUltrasonicDistance() < 15)),
+        new SetLEDColour(ledSub, Colours.WHITE).until(() -> !(intakeSub.getUltrasonicDistance() < 15)),
         new SetLEDColour(ledSub, ledSub.getDefaultColour())
       ));
   
