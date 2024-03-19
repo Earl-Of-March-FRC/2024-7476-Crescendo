@@ -131,6 +131,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     double leftDouble = left.getAsDouble();
     double rightDouble = right.getAsDouble();
 
+    drive.setDeadband(0.15);
+
     drive.tankDrive(
       Math.signum(leftDouble)*(Math.sqrt(Math.abs(leftDouble))),
       Math.signum(rightDouble)*(Math.sqrt(Math.abs(rightDouble)))
