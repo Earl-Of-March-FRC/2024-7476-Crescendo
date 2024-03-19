@@ -9,19 +9,17 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
-public class TankDriveCmd extends Command {
+public class TurnCommand extends Command {
+  DrivetrainSubsystem driveSub;
+  DoubleSupplier turnAmt;
 
-  DoubleSupplier left, right;
-  DrivetrainSubsystem drive;
+  /** Creates a new TurnCommand. */
+  public TurnCommand(DrivetrainSubsystem driveSub, DoubleSupplier turnAmt) {
+    this.driveSub = driveSub;
+    this.turnAmt = turnAmt;
 
-  /** Creates a new TankDriveCmd. */
-  public TankDriveCmd(DrivetrainSubsystem drive, DoubleSupplier left, DoubleSupplier right) {
     // Use addRequirements() here to declare subsystem dependencies.
-    this.left = left;
-    this.right = right;
-    this.drive = drive;
-
-    addRequirements(drive);
+    addRequirements(driveSub);
   }
 
   // Called when the command is initially scheduled.
@@ -31,7 +29,7 @@ public class TankDriveCmd extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drive.tankDrive(left, right);
+    driveSub.arcadeDrive(() -> 0, turnAmt);
   }
 
   // Called once the command ends or is interrupted.

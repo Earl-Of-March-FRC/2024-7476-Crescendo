@@ -14,6 +14,7 @@ import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.SpeakerMoveArm;
 import frc.robot.commands.HoldCommand;
 import frc.robot.commands.TankDriveCmd;
+import frc.robot.commands.TurnCommand;
 import frc.robot.commands.WaitAndShoot;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -73,8 +74,8 @@ public class RobotContainer {
     drive.resetGyro();
 
     // if(dController.getLeftY() - dController.getRightY() <= 0.1){
-      //Make it easier to control
-      drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY(), () -> -dController.getRightY()));
+    //Make it easier to control
+    drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY(), () -> -dController.getRightY()));
 
     // left joystick
     armSub.setDefaultCommand(new ArmControl(armSub, () -> -oController.getLeftY()));
@@ -95,6 +96,11 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+
+    // left trigger
+    new TurnCommand(drive, () -> dController.getLeftTriggerAxis());
+    // right trigger
+    new TurnCommand(drive, () -> -dController.getRightTriggerAxis());
     
     // Red B Button
     // new JoystickButton(oController, 2).whileTrue(new ArmControl(armSub, 0.6));
