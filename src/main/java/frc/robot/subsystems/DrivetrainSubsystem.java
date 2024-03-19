@@ -127,9 +127,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
     );
   }
 
+  public void tankDrive(DoubleSupplier left, DoubleSupplier right) {
+    double leftDouble = left.getAsDouble();
+    double rightDouble = right.getAsDouble();
 
-  public void tankDrive(DoubleSupplier left, DoubleSupplier right){
-    drive.tankDrive(left.getAsDouble(), right.getAsDouble());
+    drive.tankDrive(
+      Math.signum(leftDouble)*(Math.sqrt(Math.abs(leftDouble))),
+      Math.signum(rightDouble)*(Math.sqrt(Math.abs(rightDouble)))
+    );
   }
 
   public void arcadeDrive(DoubleSupplier throttle, DoubleSupplier turn){
