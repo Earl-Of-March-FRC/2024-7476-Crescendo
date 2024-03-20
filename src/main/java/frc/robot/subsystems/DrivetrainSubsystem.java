@@ -321,7 +321,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Bot X", poseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("Bot Y", poseEstimator.getEstimatedPosition().getY());
     SmartDashboard.putNumber("Bot Rotation", poseEstimator.getEstimatedPosition().getRotation().getDegrees());
-    SmartDashboard.putNumber("Rotation", gyro.getRotation2d().getDegrees());
+    SmartDashboard.putNumber("Gyro Rotation", gyro.getRotation2d().getDegrees());
 
 
 

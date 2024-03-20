@@ -19,7 +19,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new ArmSubsystem. */
   private final WPI_TalonSRX intakeMotor = new WPI_TalonSRX(9);
   //private final Ultrasonic ultrasonic = new Ultrasonic()
-  private final AnalogPotentiometer ultrasonic = new AnalogPotentiometer(new AnalogInput(0), 15);
+  private final AnalogPotentiometer ultrasonic = new AnalogPotentiometer(new AnalogInput(1), 15);
 
   public IntakeSubsystem() {
     intakeMotor.setInverted(false);
