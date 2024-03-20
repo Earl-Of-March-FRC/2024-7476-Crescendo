@@ -28,8 +28,8 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // if(ultrasonic.getRangeInches() < 15){
-    //   setIntakeSpeed(0);
+    // if(ultrasonic.get() < 15){
+
     // }
 
     SmartDashboard.putNumber("ultrasonic Distance", ultrasonic.get());

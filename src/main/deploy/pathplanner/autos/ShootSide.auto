@@ -2,37 +2,32 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 2,
-      "y": 2
+      "x": 0.7531929553170282,
+      "y": 4.445889746886382
     },
-    "rotation": 0
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "ArmAmp"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShooterStart"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": []
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ArmSpeaker"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.5
+                }
+              }
+            ]
           }
         },
         {
@@ -42,26 +37,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "ShooterStart"
+                  "name": "Shoot"
                 }
               },
               {
-                "type": "wait",
+                "type": "named",
                 "data": {
-                  "waitTime": 1.0
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "race",
-                "data": {
-                  "commands": []
+                  "name": "ArmSpeaker"
                 }
               }
             ]

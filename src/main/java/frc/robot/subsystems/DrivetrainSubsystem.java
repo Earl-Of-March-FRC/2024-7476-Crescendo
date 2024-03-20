@@ -4,28 +4,19 @@
 
 package frc.robot.subsystems;
 
-import java.util.List;
 import java.util.function.DoubleSupplier;
 
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-// import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.FollowPathRamsete;
-import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -33,29 +24,20 @@ import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -64,8 +46,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DrivetrainConstants;
 import edu.wpi.first.wpilibj.I2C.Port;
-
-
 
 import static edu.wpi.first.units.MutableMeasure.mutable;
 import static edu.wpi.first.units.Units.Meters;
@@ -99,8 +79,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   private ProfiledPIDController proPidLeft = new ProfiledPIDController(DrivetrainConstants.P, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
   private ProfiledPIDController proPidRight = new ProfiledPIDController(DrivetrainConstants.P, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
-
-
 
   public DrivetrainSubsystem() {    
 
@@ -152,6 +130,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public void tankDrive(DoubleSupplier left, DoubleSupplier right){
     drive.tankDrive(left.getAsDouble(), right.getAsDouble());
+  }
+
+  public void arcadeDrive(DoubleSupplier throttle, DoubleSupplier turn){
+    drive.arcadeDrive(throttle.getAsDouble(), turn.getAsDouble());
   }
 
   public void chassisSpeedsDrive(ChassisSpeeds chassis){
@@ -246,66 +228,66 @@ public class DrivetrainSubsystem extends SubsystemBase {
     gyro.reset();
   }
 
-  private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
-  // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
-  private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
-  // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
-  private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+  // private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+  // // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+  // private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
+  // // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+  // private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
 
-  // Create a new SysId routine for characterizing the drive.
-  private final SysIdRoutine m_sysIdRoutine =
-      new SysIdRoutine(
-          // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-          new SysIdRoutine.Config(),
-          new SysIdRoutine.Mechanism(
-              // Tell SysId how to plumb the driving voltage to the motors.
-              (Measure<Voltage> volts) -> {
-                leftFront.setVoltage(volts.in(Volts));
-                rightFront.setVoltage(volts.in(Volts));
-              },
-              // Tell SysId how to record a frame of data for each motor on the mechanism being
-              // characterized.
-              log -> {
-                // Record a frame for the left motors.  Since these share an encoder, we consider
-                // the entire group to be one motor.
-                log.motor("drive-left")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            leftFront.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(getLeftDistance(), Meters))
-                    .linearVelocity(
-                        m_velocity.mut_replace(getLeftVelocity(), MetersPerSecond));
-                // Record a frame for the right motors.  Since these share an encoder, we consider
-                // the entire group to be one motor.
-                log.motor("drive-right")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            rightFront.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(getRightDistance(), Meters))
-                    .linearVelocity(
-                        m_velocity.mut_replace(getRightVelocity(), MetersPerSecond));
-              },
-              // Tell SysId to make generated commands require this subsystem, suffix test state in
-              // WPILog with this subsystem's name ("drive")
-              this));
+  // // Create a new SysId routine for characterizing the drive.
+  // private final SysIdRoutine m_sysIdRoutine =
+  //     new SysIdRoutine(
+  //         // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+  //         new SysIdRoutine.Config(),
+  //         new SysIdRoutine.Mechanism(
+  //             // Tell SysId how to plumb the driving voltage to the motors.
+  //             (Measure<Voltage> volts) -> {
+  //               leftFront.setVoltage(volts.in(Volts));
+  //               rightFront.setVoltage(volts.in(Volts));
+  //             },
+  //             // Tell SysId how to record a frame of data for each motor on the mechanism being
+  //             // characterized.
+  //             log -> {
+  //               // Record a frame for the left motors.  Since these share an encoder, we consider
+  //               // the entire group to be one motor.
+  //               log.motor("drive-left")
+  //                   .voltage(
+  //                       m_appliedVoltage.mut_replace(
+  //                           leftFront.get() * RobotController.getBatteryVoltage(), Volts))
+  //                   .linearPosition(m_distance.mut_replace(getLeftDistance(), Meters))
+  //                   .linearVelocity(
+  //                       m_velocity.mut_replace(getLeftVelocity(), MetersPerSecond));
+  //               // Record a frame for the right motors.  Since these share an encoder, we consider
+  //               // the entire group to be one motor.
+  //               log.motor("drive-right")
+  //                   .voltage(
+  //                       m_appliedVoltage.mut_replace(
+  //                           rightFront.get() * RobotController.getBatteryVoltage(), Volts))
+  //                   .linearPosition(m_distance.mut_replace(getRightDistance(), Meters))
+  //                   .linearVelocity(
+  //                       m_velocity.mut_replace(getRightVelocity(), MetersPerSecond));
+  //             },
+  //             // Tell SysId to make generated commands require this subsystem, suffix test state in
+  //             // WPILog with this subsystem's name ("drive")
+  //             this));
 
-    /**
-   * Returns a command that will execute a quasistatic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.quasistatic(direction);
-  }
+  //   /**
+  //  * Returns a command that will execute a quasistatic test in the given direction.
+  //  *
+  //  * @param direction The direction (forward or reverse) to run the test in
+  //  */
+  // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+  //   return m_sysIdRoutine.quasistatic(direction);
+  // }
 
-  /**
-   * Returns a command that will execute a dynamic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.dynamic(direction);
-  }
+  // /**
+  //  * Returns a command that will execute a dynamic test in the given direction.
+  //  *
+  //  * @param direction The direction (forward or reverse) to run the test in
+  //  */
+  // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+  //   return m_sysIdRoutine.dynamic(direction);
+  // }
 
 
   @Override

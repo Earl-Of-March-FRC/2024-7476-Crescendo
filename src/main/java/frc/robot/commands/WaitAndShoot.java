@@ -4,20 +4,26 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class test extends ParallelCommandGroup {
-  /** Creates a new test. */
-  public test(DrivetrainSubsystem drive) {
+public class WaitAndShoot extends SequentialCommandGroup {
+  /** Creates a new WaitAndShoot. */
+
+  public WaitAndShoot(ShooterSubsystem shooterSub, IntakeSubsystem intakeSub) {
+    
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new testDrive(drive)
+      new ShooterCommand(shooterSub, 12).raceWith(new WaitCommand(1)),
+      new IntakeCommand(intakeSub, 0.7).alongWith(new ShooterCommand(shooterSub, 12)).raceWith(new WaitCommand(0.5))
     );
+
   }
 }
+
