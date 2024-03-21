@@ -24,7 +24,7 @@ public final class Constants {
   public class DrivetrainConstants {
 
     public static final double ks = 0.3;
-    public static final double kv = 2.77;
+    public static final double kv = 1.7;
     public static final double ka = 0.25;
 
     public static final double P = 0.65;
