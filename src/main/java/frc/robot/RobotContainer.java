@@ -63,7 +63,6 @@ public class RobotContainer {
     NamedCommands.registerCommand("IntakeReverse", new IntakeCommand(intakeSub, -0.5));
     NamedCommands.registerCommand("Shoot", new WaitAndShoot(shooterSub, intakeSub));
 
-    // NamedCommands.registerCommand("HoldArm", new HoldCommand(armSub));
     NamedCommands.registerCommand("ArmSpeaker", new SpeakerMoveArm(armSub));
     NamedCommands.registerCommand("ShooterStart", new ShooterCommand(shooterSub, 12));
 
@@ -119,7 +118,7 @@ public class RobotContainer {
     // button A
     new JoystickButton(oController, 1).whileTrue(new ArmPID(armSub, 10)); // arm angle for intake
     // back button
-    new JoystickButton(oController, 7).whileTrue(new ArmPID(armSub, 70)); // reset arm angle (start)
+    new JoystickButton(oController, 7).whileTrue(new ArmPID(armSub, 80)); // reset arm angle (start)
     // right joystick
     new JoystickButton(oController, 10).whileTrue(new SpeakerMoveArm(armSub)); // move arm to shoot in speaker
     // button B
