@@ -92,7 +92,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public double getArmPosition(){
-    return encoder.getDistance()+70.0;
+    return encoder.getDistance()+80.0;
   }
 
   public double getRatePosition(){
