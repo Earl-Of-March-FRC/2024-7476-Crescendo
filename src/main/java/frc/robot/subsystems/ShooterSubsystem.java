@@ -25,11 +25,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Shooter speed", 1.0);
 
-    blueShooter.setNeutralMode(NeutralMode.Coast);
-    orangeShooter.setNeutralMode(NeutralMode.Coast);
 
     blueShooter.setInverted(true);
     orangeShooter.setInverted(true);
+
+    setBrakeMode();
   }
 
   @Override
