@@ -15,7 +15,7 @@ public class LEDSubsystem extends SubsystemBase {
   AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(151);
 
   public enum Colours {
-    WHITE,
+    GREEN,
     RED,
     BLUE
   }
@@ -44,8 +44,8 @@ public class LEDSubsystem extends SubsystemBase {
     for(var i = 0; i < m_ledBuffer.getLength(); i++){
       switch(colour){
         case BLUE -> m_ledBuffer.setRGB(i, 0, 255/3, 255); // blue
-        case RED -> m_ledBuffer.setRGB(i, 255, 255/3, 0); // red
-        case WHITE -> m_ledBuffer.setRGB(i, 255, 255, 255); // white (? needs to be tested)
+        case RED -> m_ledBuffer.setRGB(i, 255, 8, 0); // red
+        case GREEN -> m_ledBuffer.setRGB(i, 0, 255, 0); // white (? needs to be tested)
       }
     }
     m_led.setData(m_ledBuffer);

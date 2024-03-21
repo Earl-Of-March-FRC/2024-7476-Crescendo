@@ -133,11 +133,16 @@ public class RobotContainer {
 
 
     // make LEDs white when the ultrasonic sensor detects a note 
-    new Trigger( () -> intakeSub.getUltrasonicDistance() < 15).onTrue(
-      new SequentialCommandGroup( 
-        new SetLEDColour(ledSub, Colours.WHITE).until(() -> !(intakeSub.getUltrasonicDistance() < 15)),
-        new SetLEDColour(ledSub, ledSub.getDefaultColour())
-      ));
+    new Trigger( () -> intakeSub.getUltrasonicDistance() < 1).onTrue(
+      //new SequentialCommandGroup( 
+        new SetLEDColour(ledSub, Colours.GREEN)//.until(() -> !(intakeSub.getUltrasonicDistance() < 1)),
+        //new SetLEDColour(ledSub, ledSub.getDefaultColour())
+      //)
+    );
+
+    new Trigger( () -> intakeSub.getUltrasonicDistance() >= 1).onTrue(
+      new SetLEDColour(ledSub, ledSub.getDefaultColour())
+    );
   
     // begin path-planning branch contents
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
