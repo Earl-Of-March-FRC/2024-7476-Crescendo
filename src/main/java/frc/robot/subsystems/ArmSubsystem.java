@@ -47,7 +47,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   private final Encoder encoder = new Encoder(0, 2);
 
-  private final ArmFeedforward feedforward = new ArmFeedforward(2, 3, 15, 3);
+  private final ArmFeedforward feedforward = new ArmFeedforward(2, 6.5, 15, 3);
   private final PIDController pid = new PIDController(0.04, 0, 0);
 
 
