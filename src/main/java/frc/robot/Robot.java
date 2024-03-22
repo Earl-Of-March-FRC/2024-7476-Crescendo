@@ -57,7 +57,7 @@ public class Robot extends TimedRobot {
       }
     } else if (DriverStation.getAlliance().get() == Alliance.Red) {
       for(var i = 0; i < m_ledBuffer.getLength(); i++){
-        m_ledBuffer.setRGB(i, 255, 255/3, 0);
+        m_ledBuffer.setRGB(i, 255, 8, 0);
       }
     }
     m_led.setData(m_ledBuffer);
