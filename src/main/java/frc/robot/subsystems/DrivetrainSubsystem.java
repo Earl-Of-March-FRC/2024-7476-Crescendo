@@ -31,44 +31,30 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.Velocity;
-import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.DrivetrainConstants;
 import edu.wpi.first.wpilibj.I2C.Port;
 
-import static edu.wpi.first.units.MutableMeasure.mutable;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Volts;
+import frc.robot.Constants.DrivetrainConstants;
 
 public class DrivetrainSubsystem extends SubsystemBase {
-  /** Creates a new DrivetrainSubsystem. */
 
+  // motors
   private final TalonFX leftFront = new TalonFX(3);
   private final TalonFX leftBack = new TalonFX(4);
   private final TalonFX rightFront = new TalonFX(1);
   private final TalonFX rightBack = new TalonFX(2);
-
   private DifferentialDrive drive = new DifferentialDrive(leftFront, rightFront);
   private final AHRS gyro = new AHRS(Port.kOnboard);
-
 
   public Pose3d visionPose;
 
   public Field2d field = new Field2d();
   private double[] poseArray = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(new double[6]);
-
 
   private DifferentialDrivePoseEstimator poseEstimator;
   private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(24.8)); // distance between left and right wheels in metres
@@ -80,6 +66,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private ProfiledPIDController proPidLeft = new ProfiledPIDController(DrivetrainConstants.P, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
   private ProfiledPIDController proPidRight = new ProfiledPIDController(DrivetrainConstants.P, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
 
+  /** Creates a new DrivetrainSubsystem. */
   public DrivetrainSubsystem() {    
 
     leftBack.setControl(new Follower(leftFront.getDeviceID(), false));
@@ -93,7 +80,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
     rightFront.getConfigurator().apply(invBrake);
     rightBack.getConfigurator().apply(invBrake);
 
-
     leftFront.setPosition(0);
     rightFront.setPosition(0);
 
@@ -104,7 +90,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     Pose2d reset = new Pose2d(1.8, 7.37, new Rotation2d().fromDegrees(90));
     poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), getLeftDistance(), getRightDistance(), new Pose2d());
-
 
     AutoBuilder.configureRamsete(
             this::getPose, // Robot pose supplier
@@ -161,26 +146,26 @@ public class DrivetrainSubsystem extends SubsystemBase {
     drive.feed();
   }
 
-    // Assuming this is a method in your drive subsystem
+  // Assuming this is a method in your drive subsystem
   public Command toSource() {
-      PathPlannerPath path = PathPlannerPath.fromPathFile("ToSource");
+    PathPlannerPath path = PathPlannerPath.fromPathFile("ToSource");
 
-      PathConstraints constraints = new PathConstraints(
-        3.0, 2.0,
-        Units.degreesToRadians(540), Units.degreesToRadians(720));
+    PathConstraints constraints = new PathConstraints(
+      3.0, 2.0,
+      Units.degreesToRadians(540), Units.degreesToRadians(720));
 
-      return AutoBuilder.pathfindThenFollowPath(path, constraints);
+    return AutoBuilder.pathfindThenFollowPath(path, constraints);
   }
 
   public Command toAmp() {
-      PathPlannerPath path = PathPlannerPath.fromPathFile("ToAmp");
+    PathPlannerPath path = PathPlannerPath.fromPathFile("ToAmp");
 
 
-      PathConstraints constraints = new PathConstraints(
-        3.0, 2.0,
-        Units.degreesToRadians(540), Units.degreesToRadians(720));
+    PathConstraints constraints = new PathConstraints(
+      3.0, 2.0,
+      Units.degreesToRadians(540), Units.degreesToRadians(720));
 
-      return AutoBuilder.pathfindThenFollowPath(path, constraints);
+    return AutoBuilder.pathfindThenFollowPath(path, constraints);
   }
 
   public void resetPose(Pose2d pose){
@@ -207,14 +192,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public double getRightVelocity(){
     return rightFront.getVelocity().getValueAsDouble()/ 8.46 *  Units.inchesToMeters((Math.PI * 6));
-
   }
-
 
   public Pose2d getBotPose(){
     return poseEstimator.getEstimatedPosition();
   }
-
 
   public Pose2d getPose(){
     poseEstimator.update(gyro.getRotation2d(), getLeftDistance(), getRightDistance());
@@ -296,7 +278,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
   //   return m_sysIdRoutine.dynamic(direction);
   // }
 
-
   @Override
   public void periodic() {
     
@@ -323,15 +304,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Bot Rotation", poseEstimator.getEstimatedPosition().getRotation().getDegrees());
     SmartDashboard.putNumber("Rotation", gyro.getRotation2d().getDegrees());
 
-
-
     SmartDashboard.putNumber("Left Distance", getLeftDistance());
     SmartDashboard.putNumber("Right Distance", getRightDistance());
 
   }
 }
 
-
-
 // System Identification Tests
-

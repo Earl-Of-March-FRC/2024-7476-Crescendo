@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -38,15 +37,16 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
+    // USB camera feed
     CameraServer.startAutomaticCapture();
-
 
     m_robotContainer.drive.resetGyro();
 
-      m_led.setLength(m_ledBuffer.getLength());
+    // control LED colours based on alliance
+    m_led.setLength(m_ledBuffer.getLength());
 
-      m_led.setData(m_ledBuffer);
-      m_led.start();
+    m_led.setData(m_ledBuffer);
+    m_led.start();
 
     if (DriverStation.getAlliance().get() == Alliance.Blue) {
       for(var i = 0; i < m_ledBuffer.getLength(); i++){

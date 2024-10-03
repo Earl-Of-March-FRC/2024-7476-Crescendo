@@ -21,7 +21,7 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
-  public class DrivetrainConstants {
+  public static class DrivetrainConstants {
 
     public static final double ks = 0.3;
     public static final double kv = 1.7;
@@ -41,13 +41,12 @@ public final class Constants {
 
   }
 
-  public class ArmConstants {
+  public static class ArmConstants {
 
     public static final double ks = 2.9347;
     public static final double kv = 15.577;
     public static final double ka = 3.4946;
     public static final double kg = 80.867;
-
 
     public static final double PositionP = 0.17368;
     public static final double I = 0;
@@ -61,8 +60,5 @@ public final class Constants {
 
     // public static final DifferentialDriveKinematics Dkinematics = new DifferentialDriveKinematics(Units.inchesToMeters(24.8)); // distance between left and right wheels in metres
 
-    
   }
-
-  
 }

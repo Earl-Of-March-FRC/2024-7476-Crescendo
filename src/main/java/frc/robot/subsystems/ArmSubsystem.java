@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
 import frc.robot.Constants;
 
 import static edu.wpi.first.units.MutableMeasure.mutable;
@@ -39,9 +40,8 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.Map;
 
-
 public class ArmSubsystem extends SubsystemBase {
-  /** Creates a new ArmSubsystem. */
+
   private final WPI_TalonSRX leftArmMotor = new WPI_TalonSRX(6);
   private final WPI_TalonSRX rightArmMotor = new WPI_TalonSRX(5);
 
@@ -50,8 +50,7 @@ public class ArmSubsystem extends SubsystemBase {
   private final ArmFeedforward feedforward = new ArmFeedforward(2, 6.5, 15, 3);
   private final PIDController pid = new PIDController(0.04, 0, 0);
 
-
-
+  /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
 
     leftArmMotor.setInverted(true);
@@ -74,7 +73,6 @@ public class ArmSubsystem extends SubsystemBase {
     leftArmMotor.setVoltage(output + feed);
     rightArmMotor.setVoltage(output + feed);
   }
-
 
   @Override
   public void periodic() {
@@ -99,8 +97,6 @@ public class ArmSubsystem extends SubsystemBase {
     return encoder.getRate();
   }
   
-
-
   // private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
   // // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
   // private final MutableMeasure<Angle> m_distance = mutable(Degrees.of(0));
@@ -155,7 +151,4 @@ public class ArmSubsystem extends SubsystemBase {
   //   return m_sysIdRoutine.dynamic(direction);
   // }
 
-  
 }
-
-
