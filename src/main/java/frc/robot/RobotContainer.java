@@ -73,7 +73,7 @@ public class RobotContainer {
 
     // if(dController.getLeftY() - dController.getRightY() <= 0.1){
       //Make it easier to control
-      drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY(), () -> -dController.getRightY()));
+      drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY()*0.5, () -> -dController.getRightY()*0.5));
 
     // left joystick
     armSub.setDefaultCommand(new ArmControl(armSub, () -> -oController.getLeftY()));
@@ -114,7 +114,11 @@ public class RobotContainer {
 
     // arm
     // button X
-    new JoystickButton(oController, 3).whileTrue(new ArmPID(armSub, 100)); // arm angle for amp
+
+    /* Arm controller commited out for robot relay 
+     * 
+     * 
+      new JoystickButton(oController, 3).whileTrue(new ArmPID(armSub, 100)); // arm angle for amp
     // button A
     new JoystickButton(oController, 1).whileTrue(new ArmPID(armSub, 10)); // arm angle for intake
     // back button
@@ -136,6 +140,8 @@ public class RobotContainer {
     // end path-planning branch
 
     // new JoystickButton+(dController, 3).onTrue(new test(drive));
+
+    */
   }
 
   /**
