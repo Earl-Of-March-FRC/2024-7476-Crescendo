@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ArcadeDriveCmd;
 import frc.robot.commands.ArmControl;
 import frc.robot.commands.ArmPID;
 import frc.robot.commands.IntakeCommand;
@@ -23,6 +24,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -73,7 +75,9 @@ public class RobotContainer {
 
     // if(dController.getLeftY() - dController.getRightY() <= 0.1){
       //Make it easier to control
-      drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY()*0.5, () -> -dController.getRightY()*0.5));
+      // drive.setDefaultCommand(new TankDriveCmd(drive, () -> -dController.getLeftY()*0.5, () -> -dController.getRightY()*0.5));
+      drive.setDefaultCommand(new ArcadeDriveCmd(drive, () ->-dController.getRightY()*0.5, () -> -dController.getLeftX()*0.5));
+
 
     // left joystick
     armSub.setDefaultCommand(new ArmControl(armSub, () -> -oController.getLeftY()));
